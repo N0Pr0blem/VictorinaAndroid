@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Viktorina</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ru_menu_easy_btn">Легкий уровень</string>
+    <string name="ru_menu_normal_btn">Средний уровень</string>
+    <string name="ru_menu_hard_btn">Сложный уровень</string>
+    <string name="ru_menu_impossible_btn">Невозможный уровень</string>
+    <string name="ru_title">Викторина</string>
+</resources>
