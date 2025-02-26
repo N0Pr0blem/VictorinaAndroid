@@ -4,53 +4,63 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.laba.viktorina.data.dto.QuestionDto;
 import com.laba.viktorina.data.model.DifficultyLevel;
 import com.laba.viktorina.data.model.Question;
-import com.laba.viktorina.data.repository.QuestionRepository;
-import com.laba.viktorina.data.repository.impl.QuestionRepositoryImpl;
-import com.laba.viktorina.utils.Randomizer;
+import com.laba.viktorina.utils.QuestionGeneratorImpl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class QuestionViewModel extends ViewModel {
-    private MutableLiveData<Question> currentQuestion = new MutableLiveData<>();
-    private List<Question> generatedQuestions;
-    private final QuestionRepository questionRepository = new QuestionRepositoryImpl();
-    private final int QUESTIONS_COUNT = 10;
+    private MutableLiveData<QuestionDto> currentQuestion = new MutableLiveData<>();
+    private List<Question> generatedQuestion;
+    public int questionIndex = 0;
+    private int rightAnswerCounter = 0;
 
-    private int currentQuestionNumber = 0;
-
-    public int getCurrentQuestionNumber() {
-        return currentQuestionNumber;
+    public void generateQuestions(DifficultyLevel difficulty) {
+        generatedQuestion = new QuestionGeneratorImpl().generate(difficulty);
+        setCurrentQuestion(generatedQuestion.get(questionIndex));
     }
 
-    public LiveData<Question> getCurrentQuestion() {
+    public LiveData<QuestionDto> getCurrentQuestion() {
         return currentQuestion;
     }
 
-    public void generateQuestions(DifficultyLevel difficulty) {
-        List<Question> questions = questionRepository.findAllByDifficulty(difficulty);
-        List<Integer> generatedIndexes = Randomizer.generate(QUESTIONS_COUNT, questions.size());
+    private void setCurrentQuestion(Question question) {
+        List<String> wrongAnswers = new ArrayList<>(question.getWrongAnswers());
+        Collections.shuffle(wrongAnswers);
 
-        generatedQuestions = generatedIndexes.stream()
-                .map(questions::get)
-                .collect(Collectors.toList());
+        currentQuestion.setValue(new QuestionDto(question.getName(),
+                question.getRightAnswer(),
+                new ArrayList<>(wrongAnswers.subList(0, 3)),
+                question.getHint(),
+                questionIndex + 1)
+        );
+
     }
 
-    public boolean nextQuestion() {
-        if (generatedQuestions == null || generatedQuestions.isEmpty()) {
+    public boolean next() {
+        questionIndex++;
+        if (questionIndex < generatedQuestion.size()) {
+            setCurrentQuestion(generatedQuestion.get(questionIndex));
+            return true;
+        } else {
+            questionIndex = 0;
             return false;
         }
+    }
 
-        if (currentQuestionNumber >= generatedQuestions.size()) {
-            currentQuestionNumber = 0;
+    public boolean answerClick(int index){
+        if(currentQuestion.getValue().isRight(index)){
+            rightAnswerCounter++;
+            next();
+            return true;
+        }
+        else{
+            next();
             return false;
         }
-
-        currentQuestion.setValue(generatedQuestions.get(currentQuestionNumber));
-        currentQuestionNumber++;
-
-        return true;
     }
 }
