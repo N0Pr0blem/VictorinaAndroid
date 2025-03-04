@@ -1,20 +1,28 @@
 package com.laba.viktorina.data.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Question {
     private final Long id;
     private final String name;
-    private final String rightAnswer;
-    private final List<String> wrongAnswers;
+    private final List<Answer> answers;
     private final DifficultyLevel difficulty;
     private final String hint;
 
     public Question(Long id, String name, String rightAnswer, List<String> wrongAnswers, DifficultyLevel difficulty, String hint) {
         this.id = id;
         this.name = name;
-        this.rightAnswer = rightAnswer;
-        this.wrongAnswers = wrongAnswers;
+        answers = new ArrayList<>();
+        answers.add(new Answer(rightAnswer,true));
+        answers.addAll(
+                wrongAnswers.stream()
+                .map(wrong->new Answer(wrong,false))
+                .collect(Collectors.toList())
+        );
+        Collections.shuffle(answers);
         this.difficulty = difficulty;
         this.hint = hint;
     }
@@ -27,12 +35,8 @@ public class Question {
         return name;
     }
 
-    public String getRightAnswer() {
-        return rightAnswer;
-    }
-
-    public List<String> getWrongAnswers() {
-        return wrongAnswers;
+    public List<Answer> getAnswers() {
+        return answers;
     }
 
     public DifficultyLevel getDifficulty() {

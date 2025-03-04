@@ -1,63 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".view.fragment.MenuFragment"
-    android:orientation="vertical">
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:textSize="30sp"
-        app:popupTheme="@style/ToolbarTheme"
-        app:title="@string/ru_title"
-        app:titleTextColor="@color/white"/>
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.fragment.MenuFragment">
 
     <LinearLayout
-        android:id="@+id/up_panel"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Добрый день"/>
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:textSize="30sp"
+            app:popupTheme="@style/ToolbarTheme"
+            app:title="@string/ru_title"
+            app:titleTextColor="@color/white" />
 
+        <LinearLayout
+            android:id="@+id/up_panel"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Добрый день" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/primary" />
+
+        <LinearLayout
+            android:id="@+id/bottom_panel"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/difficulty_easy"
+                style="@style/difficultyButton"
+                android:text="@string/ru_menu_easy_btn" />
+
+            <Button
+                android:id="@+id/difficulty_normal"
+                style="@style/difficultyButton"
+                android:text="@string/ru_menu_normal_btn" />
+
+            <Button
+                android:id="@+id/difficulty_hard"
+                style="@style/difficultyButton"
+                android:text="@string/ru_menu_hard_btn" />
+
+            <Button
+                android:id="@+id/difficulty_impossible"
+                style="@style/difficultyButton"
+                android:text="@string/ru_menu_impossible_btn" />
+
+        </LinearLayout>
     </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/primary" />
-
-    <LinearLayout
-        android:id="@+id/bottom_panel"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="2">
-
-        <Button
-            android:id="@+id/difficulty_easy"
-            style="@style/difficultyButton"
-            android:text="@string/ru_menu_easy_btn"/>
-        <Button
-            android:id="@+id/difficulty_normal"
-            style="@style/difficultyButton"
-            android:text="@string/ru_menu_normal_btn"/>
-        <Button
-            android:id="@+id/difficulty_hard"
-            style="@style/difficultyButton"
-            android:text="@string/ru_menu_hard_btn"/>
-        <Button
-            android:id="@+id/difficulty_impossible"
-            style="@style/difficultyButton"
-            android:text="@string/ru_menu_impossible_btn"/>
-
-    </LinearLayout>
-</LinearLayout>
+</layout>

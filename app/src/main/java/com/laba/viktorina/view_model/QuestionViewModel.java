@@ -4,63 +4,54 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.laba.viktorina.data.dto.QuestionDto;
 import com.laba.viktorina.data.model.DifficultyLevel;
 import com.laba.viktorina.data.model.Question;
 import com.laba.viktorina.utils.QuestionGeneratorImpl;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class QuestionViewModel extends ViewModel {
-    private MutableLiveData<QuestionDto> currentQuestion = new MutableLiveData<>();
-    private List<Question> generatedQuestion;
-    public int questionIndex = 0;
-    private int rightAnswerCounter = 0;
+    private List<Question> generatedQuestions;
+    private MutableLiveData<Question> currentQuestion = new MutableLiveData<>();
+    private Integer questionCount;
+    private Integer coinCount;
 
-    public void generateQuestions(DifficultyLevel difficulty) {
-        generatedQuestion = new QuestionGeneratorImpl().generate(difficulty);
-        setCurrentQuestion(generatedQuestion.get(questionIndex));
+
+    public Integer getQuestionCount() {
+        return questionCount+1;
     }
 
-    public LiveData<QuestionDto> getCurrentQuestion() {
+    public Integer getCoinCount() {
+        return coinCount;
+    }
+
+    public void generateQuestions(DifficultyLevel difficultyLevel) {
+        generatedQuestions = new QuestionGeneratorImpl().generate(difficultyLevel);
+        currentQuestion.setValue(generatedQuestions.get(0));
+        questionCount = 0;
+        coinCount = 0;
+    }
+
+    public LiveData<Question> getCurrentQuestion() {
         return currentQuestion;
     }
 
-    private void setCurrentQuestion(Question question) {
-        List<String> wrongAnswers = new ArrayList<>(question.getWrongAnswers());
-        Collections.shuffle(wrongAnswers);
-
-        currentQuestion.setValue(new QuestionDto(question.getName(),
-                question.getRightAnswer(),
-                new ArrayList<>(wrongAnswers.subList(0, 3)),
-                question.getHint(),
-                questionIndex + 1)
-        );
-
-    }
-
     public boolean next() {
-        questionIndex++;
-        if (questionIndex < generatedQuestion.size()) {
-            setCurrentQuestion(generatedQuestion.get(questionIndex));
-            return true;
-        } else {
-            questionIndex = 0;
+        questionCount++;
+        if (questionCount >= generatedQuestions.size()) {
+            questionCount = 0;
             return false;
         }
+        currentQuestion.setValue(generatedQuestions.get(questionCount));
+        return true;
     }
 
-    public boolean answerClick(int index){
-        if(currentQuestion.getValue().isRight(index)){
-            rightAnswerCounter++;
-            next();
+    public boolean checkAnswer(int index, boolean hintIsOnClicked) {
+        if (currentQuestion.getValue().getAnswers().get(index).isRight()) {
+            coinCount += (hintIsOnClicked) ? 1 : 3;
             return true;
         }
-        else{
-            next();
-            return false;
-        }
+        return false;
     }
+
 }

@@ -30,10 +30,9 @@
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@{question.currentQuestion.number}"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/txt_timer"
@@ -71,10 +70,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginStart="10dp"
-                android:text="@{question.currentQuestion.hint}"
                 android:textColor="@color/helper"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:text="@{question.currentQuestion.hint}"/>
 
             <TextView
                 android:id="@+id/txt_question"
@@ -82,11 +81,16 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="@{question.currentQuestion.name}"
                 android:textColor="@color/textColor"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:text="@{question.currentQuestion.name}"/>
         </LinearLayout>
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="next ->"/>
 
         <View
             android:layout_width="match_parent"
@@ -117,17 +121,16 @@
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
                     android:layout_weight="1"
-                    android:text="@{question.currentQuestion.answers.get(0)}"
-                    app:cornerRadius="0dp"/>
+                    app:cornerRadius="0dp"
+                    android:text="@{question.currentQuestion.answers.get(0).title}"/>
 
                 <Button
                     android:id="@+id/btn_third"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@{question.currentQuestion.answers.get(2)}"
                     app:cornerRadius="0dp"
-                    android:onClick="@{() -> question.next()}"/>
+                    android:text="@{question.currentQuestion.answers.get(2).title}"/>
             </LinearLayout>
 
             <LinearLayout
@@ -146,18 +149,16 @@
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
                     android:layout_weight="1"
-                    android:text="@{question.currentQuestion.answers.get(1)}"
                     app:cornerRadius="0dp"
-                    android:onClick="@{() -> question.next()}"/>
+                    android:text="@{question.currentQuestion.answers.get(1).title}"/>
 
                 <Button
                     android:id="@+id/btn_fourth"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@{question.currentQuestion.answers.get(3)}"
                     app:cornerRadius="0dp"
-                    android:onClick="@{() -> question.next()}"/>
+                    android:text="@{question.currentQuestion.answers.get(3).title}"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
