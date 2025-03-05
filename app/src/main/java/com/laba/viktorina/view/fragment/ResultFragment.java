@@ -32,7 +32,6 @@ public class ResultFragment extends Fragment {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -50,9 +49,7 @@ public class ResultFragment extends Fragment {
 
         binding.btnSaveScore.setOnClickListener(v->{
             if(navigationListener!=null){
-                Bundle bundle = new Bundle();
-                bundle.putInt("score",coins);
-                navigationListener.navigateTo(R.id.action_resultFragment_to_saveScoreFragment,bundle);
+                navigationListener.navigateTo(R.id.action_resultFragment_to_saveScoreFragment,args);
             }
         });
 

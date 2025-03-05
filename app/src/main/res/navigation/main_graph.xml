@@ -41,7 +41,16 @@
         android:label="fragment_save_score"
         tools:layout="@layout/fragment_save_score" >
         <action
-            android:id="@+id/action_saveScoreFragment_to_menuFragment"
+            android:id="@+id/action_saveScoreFragment_to_statisticFragment"
+            app:destination="@id/statisticFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/statisticFragment"
+        android:name="com.laba.viktorina.view.fragment.StatisticFragment"
+        android:label="fragment_statistic"
+        tools:layout="@layout/fragment_statistic" >
+        <action
+            android:id="@+id/action_statisticFragment_to_menuFragment"
             app:destination="@id/menuFragment" />
     </fragment>
 </navigation>

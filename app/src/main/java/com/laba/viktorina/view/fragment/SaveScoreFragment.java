@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.laba.viktorina.R;
+import com.laba.viktorina.data.model.DifficultyLevel;
 import com.laba.viktorina.data.model.User;
 import com.laba.viktorina.databinding.FragmentSaveScoreBinding;
 import com.laba.viktorina.utils.NavigationListener;
@@ -23,6 +24,7 @@ public class SaveScoreFragment extends Fragment {
     private NavigationListener navigationListener;
     private FragmentSaveScoreBinding binding;
     private UserViewModel userViewModel;
+    private DifficultyLevel difficulty;
     private Integer coins;
 
     @Override
@@ -45,13 +47,14 @@ public class SaveScoreFragment extends Fragment {
 
         if (args != null) {
             coins = args.getInt("score");
+            difficulty = DifficultyLevel.valueOf(args.getString("difficulty"));
         }
 
         binding.btnSave.setOnClickListener(v -> {
             String username = binding.txtName.getText().toString();
             if(!username.isEmpty() && navigationListener!=null){
-                userViewModel.save(new User(username,coins));
-                navigationListener.navigateTo(R.id.action_saveScoreFragment_to_menuFragment,new Bundle());
+                userViewModel.save(new User(username,coins,difficulty));
+                navigationListener.navigateTo(R.id.action_saveScoreFragment_to_statisticFragment,new Bundle());
             }
         });
 

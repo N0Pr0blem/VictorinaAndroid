@@ -12,12 +12,15 @@ public class User implements Serializable {
     private Long id;
     @ColumnInfo(name = "name")
     private String name;
-    @ColumnInfo(name = "category")
+    @ColumnInfo(name = "score")
     private Integer score;
+    @ColumnInfo(name = "difficulty")
+    private DifficultyLevel difficulty;
 
-    public User(String name, Integer score) {
+    public User(String name, Integer score, DifficultyLevel difficulty) {
         this.name = name;
         this.score = score;
+        this.difficulty = difficulty;
     }
 
     public Long getId() {
@@ -37,5 +40,13 @@ public class User implements Serializable {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public DifficultyLevel getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(DifficultyLevel difficulty) {
+        this.difficulty = difficulty;
     }
 }

@@ -2,6 +2,7 @@ package com.laba.viktorina.view.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,12 @@ import com.laba.viktorina.view_model.QuestionViewModel;
 import java.util.List;
 
 public class QuestionFragment extends Fragment {
+    private NavigationListener navigationListener;
     private FragmentQuestionBinding binding;
     private QuestionViewModel viewModel;
     private DifficultyLevel difficulty;
+    private CountDownTimer timer;
     private List<Button> btns;
-    private NavigationListener navigationListener;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -43,11 +45,12 @@ public class QuestionFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_question, container, false);
         viewModel = new ViewModelProvider(this).get(QuestionViewModel.class);
 
+        startTimer();
+
         Bundle args = getArguments();
         if (args != null) {
             String difficultyName = args.getString("difficulty");
             difficulty = DifficultyLevel.valueOf(difficultyName);
-
         }
 
         viewModel.generateQuestions(difficulty);
@@ -65,6 +68,8 @@ public class QuestionFragment extends Fragment {
         binding.btnFourth.setOnClickListener(v -> answerClick(3, btns.get(3)));
         binding.btnNext.setOnClickListener(v -> setNext());
 
+        binding.txtQuestionTitle.setText(String.valueOf(viewModel.getQuestionCount()));
+
         binding.setQuestion(viewModel);
         binding.setLifecycleOwner(this);
 
@@ -79,13 +84,14 @@ public class QuestionFragment extends Fragment {
                 but.setClickable(true);
                 but.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.primary));
             });
-            binding.txtQuestionTitle.setText(viewModel.getQuestionCount().toString());
-            binding.txtTimer.setText(viewModel.getCoinCount().toString());
+            binding.txtQuestionTitle.setText(String.valueOf(viewModel.getQuestionCount()));
+            startTimer();
         }
         else{
             if(navigationListener!=null) {
                 Bundle bundle = new Bundle();
                 bundle.putInt("score", viewModel.getCoinCount());
+                bundle.putString("difficulty", difficulty.name());
                 navigationListener.navigateTo(R.id.action_questionFragment_to_resultFragment,bundle);
             }
         }
@@ -97,6 +103,21 @@ public class QuestionFragment extends Fragment {
         btn.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), colorResId));
         binding.btnNext.setVisibility(View.VISIBLE);
         btns.forEach(but -> but.setClickable(false));
+        timer.cancel();
+    }
+
+    private void startTimer(){
+        timer = new CountDownTimer(15000,1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                binding.txtTimer.setText(String.valueOf(millisUntilFinished / 1000));
+            }
+
+            @Override
+            public void onFinish() {
+                setNext();
+            }
+        }.start();
     }
 
 }
