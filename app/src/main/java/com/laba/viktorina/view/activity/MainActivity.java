@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.firebase.FirebaseApp;
 import com.laba.viktorina.R;
 import com.laba.viktorina.utils.NavigationListener;
 import com.laba.viktorina.view.fragment.MenuFragment;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements NavigationListene
         setContentView(R.layout.activity_main);
         hideSystemUI();
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+        FirebaseApp.initializeApp(this);
     }
 
     private void hideSystemUI() {

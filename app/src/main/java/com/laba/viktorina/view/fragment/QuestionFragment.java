@@ -1,8 +1,14 @@
 package com.laba.viktorina.view.fragment;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +26,7 @@ import com.laba.viktorina.databinding.FragmentQuestionBinding;
 import com.laba.viktorina.utils.NavigationListener;
 import com.laba.viktorina.view_model.QuestionViewModel;
 
+import java.io.IOException;
 import java.util.List;
 
 public class QuestionFragment extends Fragment {
@@ -27,8 +34,10 @@ public class QuestionFragment extends Fragment {
     private FragmentQuestionBinding binding;
     private QuestionViewModel viewModel;
     private DifficultyLevel difficulty;
+    private MediaPlayer mediaPlayer;
     private CountDownTimer timer;
     private List<Button> btns;
+    private Vibrator vibrator;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -45,6 +54,7 @@ public class QuestionFragment extends Fragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_question, container, false);
         viewModel = new ViewModelProvider(this).get(QuestionViewModel.class);
 
+        vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
         startTimer();
 
         Bundle args = getArguments();
@@ -53,7 +63,11 @@ public class QuestionFragment extends Fragment {
             difficulty = DifficultyLevel.valueOf(difficultyName);
         }
 
-        viewModel.generateQuestions(difficulty);
+        try {
+            viewModel.generateQuestions(difficulty,getContext());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         binding.txtHelp.setVisibility(View.INVISIBLE);
         binding.btnNext.setVisibility(View.INVISIBLE);
@@ -100,6 +114,17 @@ public class QuestionFragment extends Fragment {
     private void answerClick(int index, Button btn) {
         boolean isRight = viewModel.checkAnswer(index, binding.txtHelp.getVisibility() == View.VISIBLE);
         int colorResId = isRight ? R.color.helper : R.color.primaryVariant;
+        mediaPlayer = isRight ? MediaPlayer.create(getContext(),R.raw.right_answer) : MediaPlayer.create(getContext(),R.raw.wrong_answer);
+        mediaPlayer.setOnCompletionListener(v->mediaPlayer.stop());
+        mediaPlayer.start();
+        if(!isRight){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                VibrationEffect vibrationEffect = VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(vibrationEffect);
+            } else {
+                vibrator.vibrate(500);
+            }
+        }
         btn.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), colorResId));
         binding.btnNext.setVisibility(View.VISIBLE);
         btns.forEach(but -> but.setClickable(false));

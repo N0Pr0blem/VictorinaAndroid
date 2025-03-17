@@ -43,6 +43,27 @@ public class MenuFragment extends Fragment {
                 navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
             }
         });
+        binding.difficultyNormal.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.NORMAL.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
+        binding.difficultyHard.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.HARD.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
+        binding.difficultyImpossible.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.IMPOSSIBLE.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
 
         return binding.getRoot();
     }

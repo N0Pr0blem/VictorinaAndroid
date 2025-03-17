@@ -1,5 +1,7 @@
 package com.laba.viktorina.view_model;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -8,6 +10,7 @@ import com.laba.viktorina.data.model.DifficultyLevel;
 import com.laba.viktorina.data.model.Question;
 import com.laba.viktorina.utils.QuestionGeneratorImpl;
 
+import java.io.IOException;
 import java.util.List;
 
 public class QuestionViewModel extends ViewModel {
@@ -25,8 +28,8 @@ public class QuestionViewModel extends ViewModel {
         return coinCount;
     }
 
-    public void generateQuestions(DifficultyLevel difficultyLevel) {
-        generatedQuestions = new QuestionGeneratorImpl().generate(difficultyLevel);
+    public void generateQuestions(DifficultyLevel difficultyLevel, Context context) throws IOException {
+        generatedQuestions = new QuestionGeneratorImpl(context).generate(difficultyLevel);
         currentQuestion.setValue(generatedQuestions.get(0));
         questionCount = 0;
         coinCount = 0;
