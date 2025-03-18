@@ -1,7 +1,10 @@
 package com.laba.viktorina.view.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -11,39 +14,58 @@ import android.widget.Button;
 
 import com.laba.viktorina.R;
 import com.laba.viktorina.data.model.DifficultyLevel;
+import com.laba.viktorina.databinding.FragmentMenuBinding;
+import com.laba.viktorina.databinding.FragmentQuestionBinding;
+import com.laba.viktorina.utils.NavigationListener;
 
 public class MenuFragment extends Fragment {
 
-    private Button btnEasy;
-    private Button btnNormal;
-    private Button btnHard;
-    private Button btnImpossible;
+    private NavigationListener navigationListener;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_menu, container, false);
-
-        btnEasy = view.findViewById(R.id.difficulty_easy);
-        btnNormal = view.findViewById(R.id.difficulty_normal);
-        btnHard = view.findViewById(R.id.difficulty_hard);
-        btnImpossible = view.findViewById(R.id.difficulty_impossible);
-
-        btnEasy.setOnClickListener(v->startOnClick(DifficultyLevel.EASY));
-        btnNormal.setOnClickListener(v->startOnClick(DifficultyLevel.NORMAL));
-        btnHard.setOnClickListener(v->startOnClick(DifficultyLevel.HARD));
-        btnImpossible.setOnClickListener(v->startOnClick(DifficultyLevel.IMPOSSIBLE));
-
-        return view;
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof NavigationListener) {
+            navigationListener = (NavigationListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement NavigationListener");
+        }
     }
 
-    private void startOnClick(DifficultyLevel difficulty) {
-        QuestionFragment questionFragment = new QuestionFragment(difficulty);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FragmentMenuBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_menu, container, false);
 
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.main_fragment_container, questionFragment)
-                .commit();
+        binding.difficultyEasy.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.EASY.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
+        binding.difficultyNormal.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.NORMAL.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
+        binding.difficultyHard.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.HARD.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
+        binding.difficultyImpossible.setOnClickListener(v->{
+            if (navigationListener != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("difficulty",DifficultyLevel.IMPOSSIBLE.toString());
+                navigationListener.navigateTo(R.id.action_menuFragment_to_questionFragment,bundle);
+            }
+        });
+
+        return binding.getRoot();
     }
+
 }

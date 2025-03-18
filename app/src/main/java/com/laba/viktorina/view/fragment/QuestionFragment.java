@@ -1,114 +1,148 @@
 package com.laba.viktorina.view.fragment;
 
-import android.annotation.SuppressLint;
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.content.Context;
+import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.laba.viktorina.R;
 import com.laba.viktorina.data.model.DifficultyLevel;
-import com.laba.viktorina.data.model.Question;
-import com.laba.viktorina.utils.Randomizer;
+import com.laba.viktorina.databinding.FragmentQuestionBinding;
+import com.laba.viktorina.utils.NavigationListener;
 import com.laba.viktorina.view_model.QuestionViewModel;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class QuestionFragment extends Fragment {
-
+    private NavigationListener navigationListener;
+    private FragmentQuestionBinding binding;
     private QuestionViewModel viewModel;
     private DifficultyLevel difficulty;
+    private MediaPlayer mediaPlayer;
+    private CountDownTimer timer;
+    private List<Button> btns;
+    private Vibrator vibrator;
 
-    private Button btnFirst;
-    private Button btnSecond;
-    private Button btnThird;
-    private Button btnFourth;
-    private ImageButton btnHint;
-    private TextView txtQuestion;
-    private TextView txtHelp;
-    private TextView txtTitle;
-
-    private Map<Integer, Button> answers;
-
-    public QuestionFragment(DifficultyLevel difficulty) {
-        this.difficulty = difficulty;
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof NavigationListener) {
+            navigationListener = (NavigationListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement NavigationListener");
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_question, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_question, container, false);
         viewModel = new ViewModelProvider(this).get(QuestionViewModel.class);
-        viewModel.generateQuestions(difficulty);
-        viewModel.nextQuestion();
 
-        btnFirst = view.findViewById(R.id.btn_first);
-        btnFirst.setOnClickListener(v->answerClick());
+        vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        startTimer();
 
-        btnSecond = view.findViewById(R.id.btn_second);
-        btnSecond.setOnClickListener(v->answerClick());
+        Bundle args = getArguments();
+        if (args != null) {
+            String difficultyName = args.getString("difficulty");
+            difficulty = DifficultyLevel.valueOf(difficultyName);
+        }
 
-        btnThird = view.findViewById(R.id.btn_third);
-        btnThird.setOnClickListener(v->answerClick());
+        try {
+            viewModel.generateQuestions(difficulty,getContext());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        btnFourth = view.findViewById(R.id.btn_fourth);
-        btnFourth.setOnClickListener(v->answerClick());
+        binding.txtHelp.setVisibility(View.INVISIBLE);
+        binding.btnNext.setVisibility(View.INVISIBLE);
 
-        txtTitle= view.findViewById(R.id.txt_question_title);
+        binding.btnHint.setOnClickListener(v -> binding.txtHelp.setVisibility(View.VISIBLE));
 
-        txtHelp = view.findViewById(R.id.txt_help);
-        txtHelp.setVisibility(View.INVISIBLE);
+        btns = List.of(binding.btnFirst, binding.btnSecond, binding.btnThird, binding.btnFourth);
 
-        btnHint = view.findViewById(R.id.btn_hint);
-        btnHint.setOnClickListener(v->txtHelp.setVisibility(View.VISIBLE));
+        binding.btnFirst.setOnClickListener(v -> answerClick(0, btns.get(0)));
+        binding.btnSecond.setOnClickListener(v -> answerClick(1, btns.get(1)));
+        binding.btnThird.setOnClickListener(v -> answerClick(2, btns.get(2)));
+        binding.btnFourth.setOnClickListener(v -> answerClick(3, btns.get(3)));
+        binding.btnNext.setOnClickListener(v -> setNext());
 
-        txtQuestion = view.findViewById(R.id.txt_question);
+        binding.txtQuestionTitle.setText(String.valueOf(viewModel.getQuestionCount()));
 
-        answers = Map.of(
-                0, btnFirst,
-                1, btnSecond,
-                2, btnThird,
-                3, btnFourth
-        );
+        binding.setQuestion(viewModel);
+        binding.setLifecycleOwner(this);
 
-        setQuestion();
-
-        return view;
+        return binding.getRoot();
     }
 
-    private void answerClick() {
-        viewModel.nextQuestion();
-    }
-
-    @SuppressLint("SetTextI18n")
-    public void setQuestion(){
-        Question question = viewModel.getCurrentQuestion().getValue();
-
-        List<Integer> wrongAnswers = Randomizer.generate(3,question.getWrongAnswers().size());
-        List<String> answers = wrongAnswers.stream()
-                .map(index-> question.getWrongAnswers().get(index))
-                .collect(Collectors.toList());
-        answers.add(question.getRightAnswer());
-        mix(answers);
-        txtHelp.setText(question.getHint());
-        txtQuestion.setText(question.getName());
-        txtTitle.setText("Вопрос №"+viewModel.getCurrentQuestionNumber());
-    }
-
-    private void mix(List<String> answers) {
-        List<Integer> answerIndexes =  Randomizer.generate(4,4);
-        for(int i =0;i<answers.size();i++)
-        {
-            this.answers.get(answerIndexes.get(i)).setText(answers.get(i));
+    private void setNext() {
+        if (viewModel.next()) {
+            binding.btnNext.setVisibility(View.INVISIBLE);
+            binding.txtHelp.setVisibility(View.INVISIBLE);
+            btns.forEach(but -> {
+                but.setClickable(true);
+                but.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.primary));
+            });
+            binding.txtQuestionTitle.setText(String.valueOf(viewModel.getQuestionCount()));
+            startTimer();
+        }
+        else{
+            if(navigationListener!=null) {
+                Bundle bundle = new Bundle();
+                bundle.putInt("score", viewModel.getCoinCount());
+                bundle.putString("difficulty", difficulty.name());
+                navigationListener.navigateTo(R.id.action_questionFragment_to_resultFragment,bundle);
+            }
         }
     }
+
+    private void answerClick(int index, Button btn) {
+        boolean isRight = viewModel.checkAnswer(index, binding.txtHelp.getVisibility() == View.VISIBLE);
+        int colorResId = isRight ? R.color.helper : R.color.primaryVariant;
+        mediaPlayer = isRight ? MediaPlayer.create(getContext(),R.raw.right_answer) : MediaPlayer.create(getContext(),R.raw.wrong_answer);
+        mediaPlayer.setOnCompletionListener(v->mediaPlayer.stop());
+        mediaPlayer.start();
+        if(!isRight){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                VibrationEffect vibrationEffect = VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(vibrationEffect);
+            } else {
+                vibrator.vibrate(500);
+            }
+        }
+        btn.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), colorResId));
+        binding.btnNext.setVisibility(View.VISIBLE);
+        btns.forEach(but -> but.setClickable(false));
+        timer.cancel();
+    }
+
+    private void startTimer(){
+        timer = new CountDownTimer(15000,1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                binding.txtTimer.setText(String.valueOf(millisUntilFinished / 1000));
+            }
+
+            @Override
+            public void onFinish() {
+                setNext();
+            }
+        }.start();
+    }
+
 }

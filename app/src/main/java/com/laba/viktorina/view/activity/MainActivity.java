@@ -10,11 +10,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
+import com.google.firebase.FirebaseApp;
 import com.laba.viktorina.R;
+import com.laba.viktorina.utils.NavigationListener;
 import com.laba.viktorina.view.fragment.MenuFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationListener {
+
+    NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         hideSystemUI();
-        MenuFragment menuFragment = new MenuFragment();
-        viewFragment(menuFragment);
+        navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+        FirebaseApp.initializeApp(this);
     }
 
     private void hideSystemUI() {
@@ -34,11 +40,8 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
-    public void viewFragment(Fragment fragment){
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack(null)
-                .replace(R.id.main_fragment_container,fragment)
-                .commit();
+    @Override
+    public void navigateTo(int fragmentId,Bundle bundle) {
+        navController.navigate(fragmentId,bundle);
     }
 }

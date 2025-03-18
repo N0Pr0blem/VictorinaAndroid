@@ -4,6 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.fragment.QuestionFragment">
 
+    <data>
+        <variable
+            name="question"
+            type="com.laba.viktorina.view_model.QuestionViewModel" />
+    </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,10 +30,9 @@
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Вопрос №0"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/txt_timer"
@@ -49,7 +54,7 @@
                 android:layout_weight="1"
                 android:background="@color/primary"
                 app:tint="@color/white"
-                tools:src="@drawable/baseline_24" />
+                android:src="@drawable/baseline_24" />
 
         </LinearLayout>
 
@@ -65,10 +70,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_marginStart="10dp"
-                android:text="Подсказка"
                 android:textColor="@color/helper"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:text="@{question.currentQuestion.hint}"/>
 
             <TextView
                 android:id="@+id/txt_question"
@@ -76,11 +81,17 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="Вопрос"
                 android:textColor="@color/textColor"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:text="@{question.currentQuestion.name}"/>
         </LinearLayout>
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_margin="12dp"
+            android:text="Вперед ->"/>
 
         <View
             android:layout_width="match_parent"
@@ -111,16 +122,18 @@
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
                     android:layout_weight="1"
-                    android:text="1"
-                    app:cornerRadius="0dp" />
+                    app:cornerRadius="0dp"
+                    android:textColor="@color/textColor"
+                    android:text="@{question.currentQuestion.answers.get(0).title}"/>
 
                 <Button
                     android:id="@+id/btn_third"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="3"
-                    app:cornerRadius="0dp" />
+                    app:cornerRadius="0dp"
+                    android:textColor="@color/textColor"
+                    android:text="@{question.currentQuestion.answers.get(2).title}"/>
             </LinearLayout>
 
             <LinearLayout
@@ -139,16 +152,18 @@
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
                     android:layout_weight="1"
-                    android:text="2"
-                    app:cornerRadius="0dp" />
+                    app:cornerRadius="0dp"
+                    android:textColor="@color/textColor"
+                    android:text="@{question.currentQuestion.answers.get(1).title}"/>
 
                 <Button
                     android:id="@+id/btn_fourth"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="4"
-                    app:cornerRadius="0dp" />
+                    app:cornerRadius="0dp"
+                    android:textColor="@color/textColor"
+                    android:text="@{question.currentQuestion.answers.get(3).title}"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

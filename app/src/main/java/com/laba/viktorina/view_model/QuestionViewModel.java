@@ -1,56 +1,60 @@
 package com.laba.viktorina.view_model;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.laba.viktorina.data.model.DifficultyLevel;
 import com.laba.viktorina.data.model.Question;
-import com.laba.viktorina.data.repository.QuestionRepository;
-import com.laba.viktorina.data.repository.impl.QuestionRepositoryImpl;
-import com.laba.viktorina.utils.Randomizer;
+import com.laba.viktorina.utils.QuestionGeneratorImpl;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class QuestionViewModel extends ViewModel {
-    private MutableLiveData<Question> currentQuestion = new MutableLiveData<>();
     private List<Question> generatedQuestions;
-    private final QuestionRepository questionRepository = new QuestionRepositoryImpl();
-    private final int QUESTIONS_COUNT = 10;
+    private MutableLiveData<Question> currentQuestion = new MutableLiveData<>();
+    private Integer questionCount;
+    private Integer coinCount;
 
-    private int currentQuestionNumber = 0;
 
-    public int getCurrentQuestionNumber() {
-        return currentQuestionNumber;
+    public Integer getQuestionCount() {
+        return questionCount+1;
+    }
+
+    public Integer getCoinCount() {
+        return coinCount;
+    }
+
+    public void generateQuestions(DifficultyLevel difficultyLevel, Context context) throws IOException {
+        generatedQuestions = new QuestionGeneratorImpl(context).generate(difficultyLevel);
+        currentQuestion.setValue(generatedQuestions.get(0));
+        questionCount = 0;
+        coinCount = 0;
     }
 
     public LiveData<Question> getCurrentQuestion() {
         return currentQuestion;
     }
 
-    public void generateQuestions(DifficultyLevel difficulty) {
-        List<Question> questions = questionRepository.findAllByDifficulty(difficulty);
-        List<Integer> generatedIndexes = Randomizer.generate(QUESTIONS_COUNT, questions.size());
-
-        generatedQuestions = generatedIndexes.stream()
-                .map(questions::get)
-                .collect(Collectors.toList());
-    }
-
-    public boolean nextQuestion() {
-        if (generatedQuestions == null || generatedQuestions.isEmpty()) {
+    public boolean next() {
+        questionCount++;
+        if (questionCount >= generatedQuestions.size()) {
+            questionCount = 0;
             return false;
         }
-
-        if (currentQuestionNumber >= generatedQuestions.size()) {
-            currentQuestionNumber = 0;
-            return false;
-        }
-
-        currentQuestion.setValue(generatedQuestions.get(currentQuestionNumber));
-        currentQuestionNumber++;
-
+        currentQuestion.setValue(generatedQuestions.get(questionCount));
         return true;
     }
+
+    public boolean checkAnswer(int index, boolean hintIsOnClicked) {
+        if (currentQuestion.getValue().getAnswers().get(index).isRight()) {
+            coinCount += (hintIsOnClicked) ? 1 : 3;
+            return true;
+        }
+        return false;
+    }
+
 }
